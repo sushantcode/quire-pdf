@@ -1,4 +1,8 @@
+import AppKit
 import CoreGraphics
+import CoreText
+import ImageIO
+import UniformTypeIdentifiers
 import Foundation
 import PDFKit
 import Testing
@@ -42,6 +46,40 @@ private func makeNoiseImage(side: Int) -> CGImage {
     return context.makeImage()!
 }
 
+/// One letter-size page with a line of text above a large photo-like image.
+private func makeTextAndImagePDF(text: String) -> Data {
+    let data = NSMutableData()
+    let context = CGContext(consumer: CGDataConsumer(data: data as CFMutableData)!, mediaBox: nil, nil)!
+    context.beginPDFPage(nil)
+    let line = CTLineCreateWithAttributedString(
+        NSAttributedString(string: text, attributes: [.font: NSFont.systemFont(ofSize: 24)]))
+    context.textPosition = CGPoint(x: 72, y: 720)
+    CTLineDraw(line, context)
+    context.draw(makeNoiseImage(side: 2400), in: CGRect(x: 72, y: 72, width: 468, height: 600))
+    context.endPDFPage()
+    context.closePDF()
+    return data as Data
+}
+
+/// A letter-size page showing a small, already-JPEG image at about 80 dpi:
+/// the kind a downsampling filter would scale *up*.
+private func makeLowResolutionJPEGPDF() -> Data {
+    let jpeg = NSMutableData()
+    let destination = CGImageDestinationCreateWithData(jpeg, UTType.jpeg.identifier as CFString, 1, nil)!
+    CGImageDestinationAddImage(destination, makeNoiseImage(side: 600),
+                               [kCGImageDestinationLossyCompressionQuality: 0.6] as CFDictionary)
+    CGImageDestinationFinalize(destination)
+    let image = CGImageSourceCreateImageAtIndex(CGImageSourceCreateWithData(jpeg, nil)!, 0, nil)!
+
+    let data = NSMutableData()
+    let context = CGContext(consumer: CGDataConsumer(data: data as CFMutableData)!, mediaBox: nil, nil)!
+    context.beginPDFPage(nil)
+    context.draw(image, in: CGRect(x: 36, y: 36, width: 540, height: 540))
+    context.endPDFPage()
+    context.closePDF()
+    return data as Data
+}
+
 private func pageWidths(_ data: Data) -> [Int] {
     let document = PDFDocument(data: data)!
     return (0..<document.pageCount).map { Int(document.page(at: $0)!.bounds(for: .mediaBox).width) }
@@ -71,32 +109,101 @@ struct PageMoveTests {
         items.move(2, onto: 2)
         #expect(items.map(\.id) == [1, 2, 3])
     }
+
+    @Test func movingSeveralKeepsTheirOrder() {
+        var forward = [1, 2, 3, 4, 5].map(Item.init)
+        forward.move([1, 3], onto: 4)
+        #expect(forward.map(\.id) == [2, 4, 1, 3, 5])
+
+        var backward = [1, 2, 3, 4, 5].map(Item.init)
+        backward.move([5, 3], onto: 2)
+        #expect(backward.map(\.id) == [1, 3, 5, 2, 4])
+    }
+
+    @Test func movingToStartAndEnd() {
+        var items = [1, 2, 3, 4].map(Item.init)
+        items.moveToStart([2, 4])
+        #expect(items.map(\.id) == [2, 4, 1, 3])
+        items.moveToEnd([2])
+        #expect(items.map(\.id) == [4, 1, 3, 2])
+    }
 }
 
 @MainActor
 struct MergeTests {
-    @Test func mergesFilesAndPagesInEditedOrder() throws {
+    /// A workspace holding a (pages 101-103) and b (pages 201-204).
+    private func makeWorkspace() throws -> (Workspace, PDFFile, PDFFile) {
         let workspace = Workspace()
         let a = try PDFFile(name: "a", data: makePDF(widths: [101, 102, 103]))
-        let b = try PDFFile(name: "b", data: makePDF(widths: [201, 202]))
-        workspace.files = [a, b]
-
-        a.movePage(a.pages[2].id, onto: a.pages[0].id)   // a: 103, 101, 102
-        a.removePages([a.pages[1].id])                   // a: 103, 102
-        workspace.moveFiles(from: [1], to: 0)            // b before a
-
-        let merged = try PDFComposer.merge(workspace.pagesForMerge)
-        #expect(pageWidths(merged) == [201, 202, 103, 102])
-        #expect(a.document.pageCount == 3, "merging must not alter the source document")
+        let b = try PDFFile(name: "b", data: makePDF(widths: [201, 202, 203, 204]))
+        workspace.insert([a, b])
+        return (workspace, a, b)
     }
 
-    @Test func resetRestoresOriginalPages() throws {
-        let file = try PDFFile(name: "a", data: makePDF(widths: [101, 102, 103]))
-        file.removePages([file.pages[0].id])
-        #expect(file.isModified)
-        file.resetPages()
-        #expect(!file.isModified)
-        #expect(file.pages.count == 3)
+    private func mergedWidths(_ workspace: Workspace) throws -> [Int] {
+        pageWidths(try PDFComposer.merge(workspace.pagesForMerge))
+    }
+
+    @Test func mergesEveryPageInFileOrderByDefault() throws {
+        let (workspace, _, _) = try makeWorkspace()
+        #expect(try mergedWidths(workspace) == [101, 102, 103, 201, 202, 203, 204])
+        #expect(!workspace.isRearranged)
+    }
+
+    @Test func movesAPageFromALaterFileToTheTop() throws {
+        let (workspace, a, b) = try makeWorkspace()
+        workspace.movePages([b.pages[3].id], onto: a.pages[0].id)
+        #expect(try mergedWidths(workspace) == [204, 101, 102, 103, 201, 202, 203])
+        #expect(workspace.isModified(b))
+        #expect(!workspace.isModified(a))
+        #expect(b.document.pageCount == 4, "merging must not alter the source document")
+    }
+
+    @Test func reorderingFilesRegroupsTheirPages() throws {
+        let (workspace, a, b) = try makeWorkspace()
+        workspace.movePages([b.pages[0].id], onto: a.pages[1].id)  // 101, 201, 102, ...
+        workspace.removePages([a.pages[0].id])
+        workspace.moveFiles(from: [1], to: 0)
+        #expect(try mergedWidths(workspace) == [201, 202, 203, 204, 102, 103])
+    }
+
+    @Test func addedFilesInsertTheirPagesAtTheirPosition() throws {
+        let (workspace, _, _) = try makeWorkspace()
+        let c = try PDFFile(name: "c", data: makePDF(widths: [301]))
+        workspace.insert([c], at: 1)
+        #expect(try mergedWidths(workspace) == [101, 102, 103, 301, 201, 202, 203, 204])
+        #expect(Set(workspace.files.map(\.tintIndex)).count == 3, "each file gets its own colour")
+    }
+
+    @Test func removingAFileRemovesItsPages() throws {
+        let (workspace, a, b) = try makeWorkspace()
+        workspace.selectedPageIDs = [a.pages[0].id, b.pages[0].id]
+        workspace.remove([a.id])
+        #expect(try mergedWidths(workspace) == [201, 202, 203, 204])
+        #expect(workspace.selectedPageIDs == [b.pages[0].id])
+    }
+
+    @Test func resetRestoresEveryPageInFileOrder() throws {
+        let (workspace, a, b) = try makeWorkspace()
+        workspace.movePagesToStart([b.pages[2].id])
+        workspace.removePages([a.pages[1].id])
+        #expect(workspace.isRearranged)
+        workspace.resetPages()
+        #expect(!workspace.isRearranged)
+        #expect(workspace.pages.count == 7)
+    }
+
+    @Test func clearRemovesEverythingAndRestartsColours() throws {
+        let (workspace, a, _) = try makeWorkspace()
+        workspace.selectedPageIDs = [a.pages[0].id]
+        workspace.selectedFileID = a.id
+        workspace.clear()
+        #expect(workspace.files.isEmpty && workspace.pages.isEmpty)
+        #expect(workspace.selectedPageIDs.isEmpty && workspace.selectedFileID == nil)
+
+        let c = try PDFFile(name: "c", data: makePDF(widths: [301]))
+        workspace.insert([c])
+        #expect(c.tintIndex == 0, "a fresh start begins at the first colour again")
     }
 
     @Test func mergingNothingFails() {
@@ -114,6 +221,20 @@ struct CompressionTests {
         let output = try PDFCompressor.compress(input, level: .maximum)
         #expect(output.count < input.count / 4, "expected big reduction, got \(input.count) -> \(output.count)")
         #expect(pageWidths(output) == [612, 500])
+    }
+
+    @Test func balancedShrinksImagesAndKeepsTextSelectable() throws {
+        let input = makeTextAndImagePDF(text: "Selectable text survives")
+        let output = try PDFCompressor.compress(input, level: .balanced)
+        #expect(output.count < input.count / 4, "expected big reduction, got \(input.count) -> \(output.count)")
+        #expect(PDFDocument(data: output)?.string?.contains("Selectable text survives") == true)
+    }
+
+    @Test func balancedDoesNotUpsampleLowResolutionImages() throws {
+        let input = makeLowResolutionJPEGPDF()
+        let output = try PDFCompressor.smallestReencoding(of: input)
+        #expect(output.count <= input.count + input.count / 10,
+                "re-encoding grew a low-resolution PDF: \(input.count) -> \(output.count)")
     }
 
     @Test func rasterizeKeepsRotatedPageOrientation() throws {

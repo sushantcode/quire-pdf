@@ -10,17 +10,21 @@ struct ContentView: View {
             FileListView()
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260)
         } detail: {
-            if let file = workspace.selectedFile {
-                PageGridView(file: file)
-                    .id(file.id)
-            } else {
+            if workspace.files.isEmpty {
                 ContentUnavailableView {
-                    Label("No PDF Selected", systemImage: "doc.richtext")
+                    Label("No PDFs", systemImage: "doc.richtext")
                 } description: {
-                    Text("Open PDF files, or drop them onto the sidebar.")
+                    Text("Open PDF files, or drop them here or onto the sidebar.")
                 } actions: {
                     Button("Open PDFs…") { workspace.isImporting = true }
                 }
+                .dropDestination(for: URL.self) { urls, _ in
+                    workspace.add(urls)
+                    return true
+                }
+            } else {
+                PageGridView()
+                    .safeAreaInset(edge: .bottom, spacing: 0) { MergeBar() }
             }
         }
         .toolbar {
@@ -33,13 +37,20 @@ struct ContentView: View {
                 .help("Add PDF files")
 
                 Button {
-                    workspace.isExporting = true
+                    workspace.isConfirmingClear = true
                 } label: {
-                    Label("Merge & Export", systemImage: "square.and.arrow.up.on.square")
+                    Label("Start Over", systemImage: "xmark.circle")
                 }
-                .help("Merge all files into one PDF and save it")
-                .disabled(workspace.totalPageCount == 0)
+                .help("Remove every file and start again (⇧⌘⌫)")
+                .disabled(workspace.files.isEmpty)
             }
+        }
+        .confirmationDialog("Start over?", isPresented: $workspace.isConfirmingClear) {
+            Button("Remove All Files", role: .destructive) {
+                withAnimation { workspace.clear() }
+            }
+        } message: {
+            Text("This removes \(workspace.files.count == 1 ? "the file" : "all \(workspace.files.count) files") and your page arrangement. The PDFs on disk are not changed.")
         }
         .fileImporter(isPresented: $workspace.isImporting,
                       allowedContentTypes: [.pdf],
@@ -48,9 +59,6 @@ struct ContentView: View {
             case .success(let urls): workspace.add(urls)
             case .failure(let error): workspace.errorMessage = error.localizedDescription
             }
-        }
-        .sheet(isPresented: $workspace.isExporting) {
-            ExportSheet()
         }
         .alert("Something went wrong",
                isPresented: Binding(get: { workspace.errorMessage != nil },

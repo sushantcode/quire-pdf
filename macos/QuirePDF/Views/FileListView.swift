@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Sidebar listing the loaded PDFs in merge order. Drag rows to reorder;
-/// drop PDFs from Finder to add them at the drop position.
+/// Sidebar listing the loaded PDFs. Selecting one selects its pages. Dragging
+/// rows regroups the pages file by file; drop PDFs from Finder to add them at
+/// the drop position.
 struct FileListView: View {
     @Environment(Workspace.self) private var workspace
 
@@ -9,9 +10,11 @@ struct FileListView: View {
         @Bindable var workspace = workspace
 
         List(selection: $workspace.selectedFileID) {
-            Section("Merge order") {
+            Section("Files") {
                 ForEach(Array(workspace.files.enumerated()), id: \.element.id) { index, file in
-                    FileRow(file: file, position: index + 1)
+                    FileRow(file: file, position: index + 1,
+                            pagesInMerge: workspace.pageCount(of: file),
+                            isModified: workspace.isModified(file))
                         .tag(file.id)
                         .contextMenu {
                             Button("Remove", role: .destructive) { workspace.remove([file.id]) }
@@ -39,7 +42,7 @@ struct FileListView: View {
         }
         .safeAreaInset(edge: .bottom) {
             if !workspace.files.isEmpty {
-                Text("\(workspace.files.count) files · \(workspace.totalPageCount) pages · \(workspace.totalByteCount.formatted(.byteCount(style: .file)))")
+                Text("\(workspace.files.count.counted("file")) · \(workspace.totalByteCount.formatted(.byteCount(style: .file)))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(8)
@@ -51,6 +54,15 @@ struct FileListView: View {
 private struct FileRow: View {
     let file: PDFFile
     let position: Int
+    let pagesInMerge: Int
+    let isModified: Bool
+
+    private var detail: String {
+        let pages = pagesInMerge == file.pages.count
+            ? file.pages.count.counted("page")
+            : "\(pagesInMerge) of \(file.pages.count) pages"
+        return "\(pages) · \(file.originalByteCount.formatted(.byteCount(style: .file)))\(isModified ? " · edited" : "")"
+    }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -58,6 +70,10 @@ private struct FileRow: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
                 .frame(width: 18, alignment: .trailing)
+            // The same colour marks this file's pages in the grid.
+            RoundedRectangle(cornerRadius: 1.5)
+                .fill(file.tint)
+                .frame(width: 3, height: 32)
             if let first = file.pages.first {
                 PageImage(page: first.page, maxPixelSize: 80)
                     .frame(width: 28, height: 36)
@@ -69,7 +85,7 @@ private struct FileRow: View {
                 Text(file.name)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                Text("\(file.pages.count) pages · \(file.originalByteCount.formatted(.byteCount(style: .file)))\(file.isModified ? " · edited" : "")")
+                Text(detail)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
