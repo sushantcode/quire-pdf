@@ -1,0 +1,80 @@
+name: QuirePDF
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+# Both configurations read the same file; it includes the gitignored
+# Local.xcconfig (signing) and the generated Version.xcconfig.
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+
+# Show Config/ in the Xcode navigator. Without this only the files named
+# above are referenced and Local.xcconfig is invisible to whoever has to
+# fill it in.
+fileGroups:
+  - Config
+
+# Versions and signing are deliberately absent here: a project-level setting
+# in this file would override Config/Base.xcconfig and everything it includes.
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+
+targets:
+  QuirePDF:
+    type: application
+    platform: macOS
+    sources: [QuirePDF]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.QuirePDF
+        PRODUCT_NAME: Quire PDF
+        PRODUCT_MODULE_NAME: QuirePDF
+        CODE_SIGN_ENTITLEMENTS: QuirePDF/QuirePDF.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Quire PDF
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        # Signing comes from Config/Base.xcconfig, overridden by the
+        # gitignored Local.xcconfig. Restated per target because xcodegen's
+        # platform presets set target-level signing defaults, and a target
+        # setting beats the project xcconfig.
+        CODE_SIGN_STYLE: $(CODE_SIGN_STYLE)
+        DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+        CODE_SIGN_IDENTITY: $(CODE_SIGN_IDENTITY)
+  QuirePDFTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [QuirePDFTests]
+    dependencies:
+      - target: QuirePDF
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.QuirePDFTests
+        # xcodegen derives the host from the target name, but the app's
+        # PRODUCT_NAME has a space in it. Keep this in step with PRODUCT_NAME.
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Quire PDF.app/Contents/MacOS/Quire PDF"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: $(CODE_SIGN_STYLE)
+        DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+        CODE_SIGN_IDENTITY: $(CODE_SIGN_IDENTITY)
+
+schemes:
+  QuirePDF:
+    build:
+      targets:
+        QuirePDF: all
+        QuirePDFTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [QuirePDFTests]
