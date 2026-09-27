@@ -23,16 +23,22 @@ small end, only the page silhouette survives.
 
 A SwiftUI + PDFKit app for macOS 14 or later. It can:
 
-1. **Load** local PDFs: use ⌘O, the + button, or drop files onto the sidebar.
-2. **Rearrange pages** within a PDF: drag one thumbnail onto another. To delete a page, right-click it or select it and press Delete. ⌘-click selects several pages. **Reset Pages** undoes all edits to that file.
-3. **Rearrange files**: drag rows in the sidebar. Their order is the merge order.
-4. **Merge** every file into one PDF with ⌘E or **Merge & Export**.
-5. **Compress** while exporting:
+1. **Load** local PDFs: use ⌘O, the + button, or drop files onto the window.
+2. **Arrange pages across files.** The main area shows every page of every file in the order they'll be merged. Drag a page onto another to move it there, even to a spot among another file's pages. A coloured badge on each page shows which file and page it came from.
+   - ⌘-click adds a page to the selection, and Shift-click selects a range. Dragging a selected page moves the whole selection.
+   - Right-click a page to move it to the start or end, or to delete it. Delete also removes the selected pages.
+   - Selecting a file in the sidebar selects its pages and scrolls to them.
+   - **Reset Pages** restores every page of every file, in file order.
+3. **Rearrange files** by dragging rows in the sidebar. This regroups the pages file by file, so any pages you moved between files go back to their own file.
+4. **Merge** with the button in the bar under the pages, or with ⌘E. It saves straight away and then shows the file size, with a link to show the file in Finder.
+5. **Compress** while merging. Choose a level in the same bar:
    - **None** keeps the content exactly.
-   - **Balanced** re-encodes images as screen-resolution JPEG, and text stays selectable.
+   - **Balanced** re-encodes images as JPEG and scales large ones down to 150 dpi. Text and vector content stay as they are, so text is still selectable. It never scales small images up.
    - **Maximum** renders each page as a JPEG, so text is no longer selectable.
 
    If compression would make the file bigger, the uncompressed data is saved instead.
+
+**Start Over** in the toolbar, or ⇧⌘⌫, removes every file so you can begin again. It asks first.
 
 Your edits change only what gets exported. The original files are never modified.
 
@@ -74,7 +80,7 @@ until `VERSION` has been committed.
 
 | Path | Contents |
 | --- | --- |
-| `QuirePDF/Model` | `PDFFile` (one loaded PDF and its edited page order) and `Workspace` (files in merge order) |
+| `QuirePDF/Model` | `PDFFile` (one loaded PDF and its pages) and `Workspace` (the files, and the one page order they merge in) |
 | `QuirePDF/Services/PDFComposer.swift` | Merging, plus the compression levels |
-| `QuirePDF/Views` | Sidebar, page grid, export sheet |
-| `QuirePDFTests` | Swift Testing tests for moving pages, merge order and compression |
+| `QuirePDF/Views` | Sidebar, page grid, merge bar |
+| `QuirePDFTests` | Swift Testing tests for moving pages within and across files, merge order and compression |

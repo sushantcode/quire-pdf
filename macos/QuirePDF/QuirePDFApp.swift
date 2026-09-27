@@ -14,9 +14,13 @@ struct QuirePDFApp: App {
             CommandGroup(replacing: .newItem) {
                 Button("Open PDFs…") { workspace.isImporting = true }
                     .keyboardShortcut("o")
-                Button("Merge & Export…") { workspace.isExporting = true }
+                Button("Merge & Save…") { workspace.isExportRequested = true }
                     .keyboardShortcut("e")
-                    .disabled(workspace.totalPageCount == 0)
+                    .disabled(workspace.pages.isEmpty)
+                Divider()
+                Button("Start Over…") { workspace.isConfirmingClear = true }
+                    .keyboardShortcut(.delete, modifiers: [.command, .shift])
+                    .disabled(workspace.files.isEmpty)
             }
         }
     }
