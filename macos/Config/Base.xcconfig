@@ -1,0 +1,57 @@
+// Every key the build takes from outside project.yml, with safe defaults and
+// no personal values. Copy the signing block into Local.xcconfig, which is
+// gitignored, and fill it in there. Local.xcconfig is included at the BOTTOM,
+// and in xcconfig the last assignment wins, so anything set there overrides
+// what is here.
+
+// --- Code signing --------------------------------------------------------
+// Teamless and ad-hoc here on purpose, so anyone can build and run on their
+// own Mac without an Apple account or a shared team id.
+//
+// Not `CODE_SIGNING_ALLOWED: NO` instead: an unsigned app carries no
+// entitlements, so it runs outside the App Sandbox and file access behaves
+// differently from what ships; and on Apple silicon an arm64 binary with no
+// signature at all is killed at launch.
+//
+// Set all three in Local.xcconfig to sign with your team. They live there
+// rather than in project.yml so they survive xcodegen regenerating the
+// project, and so nobody has to share a team id to build this.
+//
+//   DEVELOPMENT_TEAM = <your 10-character team id>
+//   CODE_SIGN_STYLE = Automatic
+//   CODE_SIGN_IDENTITY = Apple Development
+//
+// Automatic signing makes Xcode manage the provisioning profile and register
+// the bundle id. The entitlements file (sandbox + user-selected files) is
+// checked in and applies to ad-hoc and team signing alike.
+DEVELOPMENT_TEAM =
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = -
+
+// --- Version -------------------------------------------------------------
+// The build number must increase with every release, and a hand-edited one
+// eventually does not. `make macos-version` writes the commit count into
+// Config/Version.xcconfig, which is generated and gitignored.
+//
+// It is a build *setting* rather than a post-build edit of the built plist:
+// signing happens last, so anything that rewrites Info.plist afterwards
+// invalidates the signature.
+//
+// This fallback keeps a fresh checkout building before that file exists.
+CURRENT_PROJECT_VERSION = 1
+
+// The version people see. MAJOR.MINOR is decided in VERSION at the root of the
+// repository; the patch is the number of commits since that file changed, so
+// bumping the minor resets it. `make macos-version` derives the whole thing
+// and writes it below, overriding this.
+//
+// It must stay numeric: the App Store rejects a CFBundleShortVersionString
+// that is not MAJOR.MINOR.PATCH.
+//
+// This fallback is deliberately not the real version. A checkout that has not
+// run `make macos-version` should look unstamped rather than look like a
+// release.
+MARKETING_VERSION = 0.0.0
+
+#include? "Version.xcconfig"
+#include? "Local.xcconfig"

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Quire PDF">
+  <title>Quire PDF</title>
+  <!--
+    Single-colour variant: inherits `currentColor`, so it takes the colour of
+    whatever it sits in. For a light-ground favicon, print, and anywhere the
+    gradient tile would fight the surrounding design. No tile, so no coral
+    thread or text lines either: the silhouette is the mark. The back pages keep their
+    depth through opacity, which survives any tint.
+  -->
+  <g transform="translate(32 32) scale(1.25) translate(-32 -32)">
+    <g fill="currentColor">
+      <rect x="20" y="17" width="24" height="30" rx="2.2" opacity=".3" transform="rotate(-16 32 32)"/>
+      <rect x="20" y="17" width="24" height="30" rx="2.2" opacity=".55" transform="rotate(-7 32 32)"/>
+      <path transform="rotate(3 32 32)" d="M22.2 17 H38 L44 23 V44.8 A2.2 2.2 0 0 1 41.8 47 H22.2 A2.2 2.2 0 0 1 20 44.8 V19.2 A2.2 2.2 0 0 1 22.2 17 Z"/>
+    </g>
+  </g>
+</svg>
