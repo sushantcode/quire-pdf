@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Quire PDF">
+  <title>Quire PDF</title>
+  <!--
+    A quire is a gathering of sheets sewn along the spine. Three pages fan out
+    behind one another, which is the rearranging, and a single coral thread
+    stitches the front one, which is the merge. The name and the job in one shape.
+
+    The pages rotate about one centre so the fan reads as a single stack rather
+    than three loose sheets. The front page's folded corner is what makes it
+    read as paper rather than a card.
+
+    There is deliberately no ghost initial behind the pages. A round Q with a
+    diagonal tail is the magnifying glass, at any size and opacity tried, and
+    the icon read as search.
+
+    It has to survive 16px. There the text lines and stitch fade to texture and
+    the page silhouette carries the mark alone. Check both ends of that range
+    before changing anything.
+  -->
+  <defs>
+    <linearGradient id="qp-tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D9488"/>
+      <stop offset="1" stop-color="#1E40AF"/>
+    </linearGradient>
+    <filter id="qp-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0.8" stdDeviation="1.2" flood-color="#0B1E4A" flood-opacity=".35"/>
+    </filter>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="url(#qp-tile)"/>
+
+  <!-- The pages, scaled about the centre. They stay inside the middle 66%,
+       the part of an Android adaptive icon every launcher shows. -->
+  <g transform="translate(32 32) scale(1.25) translate(-32 -32)">
+    <g filter="url(#qp-shadow)">
+      <rect x="20" y="17" width="24" height="30" rx="2.2" fill="#FFFFFF" opacity=".45" transform="rotate(-16 32 32)"/>
+      <rect x="20" y="17" width="24" height="30" rx="2.2" fill="#FFFFFF" opacity=".7" transform="rotate(-7 32 32)"/>
+    </g>
+
+    <g transform="rotate(3 32 32)">
+      <path d="M22.2 17 H38 L44 23 V44.8 A2.2 2.2 0 0 1 41.8 47 H22.2 A2.2 2.2 0 0 1 20 44.8 V19.2 A2.2 2.2 0 0 1 22.2 17 Z" fill="#FFFFFF" filter="url(#qp-shadow)"/>
+      <path d="M38 17 V21.5 A1.5 1.5 0 0 0 39.5 23 H44 Z" fill="#CFE0F0"/>
+
+      <g stroke-linecap="round" fill="none">
+        <path d="M27 24.5 H34" stroke="#7FA3C9" stroke-width="2"/>
+        <path d="M27 29.5 H40 M27 33.5 H38 M27 37.5 H40 M27 41.5 H35" stroke="#D3DFEC" stroke-width="1.5"/>
+      </g>
+
+      <!-- The thread: a running stitch down the spine. -->
+      <path d="M23.4 20.5 V23.5 M23.4 26.5 V29.5 M23.4 32.5 V35.5 M23.4 38.5 V41.5" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

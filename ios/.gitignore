@@ -1,0 +1,8 @@
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.DS_Store
+# Per-developer signing, and the version stamp `make macos-version` writes.
+Config/Local.xcconfig
+Config/Version.xcconfig

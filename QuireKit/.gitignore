@@ -1,0 +1,7 @@
+# SwiftPM and Xcode build output and per-user state.
+.build/
+.swiftpm/
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.DS_Store

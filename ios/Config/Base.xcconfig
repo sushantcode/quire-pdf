@@ -1,0 +1,40 @@
+// Every key the build takes from outside project.yml, with safe defaults and
+// no personal values. Copy the signing block into Local.xcconfig, which is
+// gitignored, and fill it in there. Local.xcconfig is included at the BOTTOM,
+// and in xcconfig the last assignment wins, so anything set there overrides
+// what is here.
+
+// --- Code signing --------------------------------------------------------
+// Teamless here on purpose, so anyone can build and run in the Simulator
+// without an Apple account or a shared team id. A simulator build is signed
+// to run locally and needs nothing more.
+//
+// Running on a device, or archiving for TestFlight and the App Store, needs a
+// team. Set it in Local.xcconfig; automatic signing then manages the
+// provisioning profile and registers the bundle id:
+//
+//   DEVELOPMENT_TEAM = <your 10-character team id>
+//
+// If the macOS app already has a Local.xcconfig, the same team works here.
+DEVELOPMENT_TEAM =
+CODE_SIGN_STYLE = Automatic
+
+// --- Version -------------------------------------------------------------
+// The build number must increase with every upload, and a hand-edited one
+// eventually does not. `make version` writes the commit count into
+// Config/Version.xcconfig, which is generated and gitignored, for this app
+// and the macOS app alike, so both ship the same version from one commit.
+//
+// This fallback keeps a fresh checkout building before that file exists.
+CURRENT_PROJECT_VERSION = 1
+
+// The version people see, MAJOR.MINOR.PATCH, derived from VERSION at the root
+// of the repository by `make version`. It must stay numeric: App Store
+// Connect rejects a CFBundleShortVersionString that is not.
+//
+// This fallback is deliberately not the real version. A checkout that has not
+// run `make version` should look unstamped rather than look like a release.
+MARKETING_VERSION = 0.0.0
+
+#include? "Version.xcconfig"
+#include? "Local.xcconfig"

@@ -17,6 +17,11 @@ configFiles:
 fileGroups:
   - Config
 
+# The model, merging and compression, shared with the iOS app.
+packages:
+  QuireKit:
+    path: ../QuireKit
+
 # Versions and signing are deliberately absent here: a project-level setting
 # in this file would override Config/Base.xcconfig and everything it includes.
 settings:
@@ -30,6 +35,8 @@ targets:
     type: application
     platform: macOS
     sources: [QuirePDF]
+    dependencies:
+      - package: QuireKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.QuirePDF
@@ -49,32 +56,12 @@ targets:
         CODE_SIGN_STYLE: $(CODE_SIGN_STYLE)
         DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
         CODE_SIGN_IDENTITY: $(CODE_SIGN_IDENTITY)
-  QuirePDFTests:
-    type: bundle.unit-test
-    platform: macOS
-    sources: [QuirePDFTests]
-    dependencies:
-      - target: QuirePDF
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.QuirePDFTests
-        # xcodegen derives the host from the target name, but the app's
-        # PRODUCT_NAME has a space in it. Keep this in step with PRODUCT_NAME.
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Quire PDF.app/Contents/MacOS/Quire PDF"
-        BUNDLE_LOADER: "$(TEST_HOST)"
-        GENERATE_INFOPLIST_FILE: YES
-        CODE_SIGN_STYLE: $(CODE_SIGN_STYLE)
-        DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
-        CODE_SIGN_IDENTITY: $(CODE_SIGN_IDENTITY)
 
+# Tests live with the code they test, in QuireKit: `make kit`.
 schemes:
   QuirePDF:
     build:
       targets:
         QuirePDF: all
-        QuirePDFTests: [test]
     run:
       config: Debug
-    test:
-      config: Debug
-      targets: [QuirePDFTests]

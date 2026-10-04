@@ -1,0 +1,116 @@
+name: QuirePDF
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+# Both configurations read the same file; it includes the gitignored
+# Local.xcconfig (signing) and the generated Version.xcconfig.
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+
+# Show Config/ in the Xcode navigator, so Local.xcconfig is visible to
+# whoever has to fill it in.
+fileGroups:
+  - Config
+
+# The model, merging and compression, shared with the macOS app.
+packages:
+  QuireKit:
+    path: ../QuireKit
+
+# Versions and signing are deliberately absent here: a project-level setting
+# in this file would override Config/Base.xcconfig and everything it includes.
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+
+targets:
+  QuirePDF:
+    type: application
+    platform: iOS
+    sources: [QuirePDF]
+    dependencies:
+      - package: QuireKit
+    # Keys Xcode's generated Info.plist cannot express. The rest are the
+    # INFOPLIST_KEY_ settings below, merged into this file at build time.
+    info:
+      path: QuirePDF/Info.plist
+      properties:
+        # Offer "Open in Quire PDF" for PDFs in Files, Mail, Safari and the
+        # share sheet. Opened in place where possible: the app only reads the
+        # file, so it never needs a copy.
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: PDF Document
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [com.adobe.pdf]
+        LSSupportsOpeningDocumentsInPlace: true
+        UISupportsDocumentBrowser: false
+        # No encryption beyond what the OS provides, so App Store Connect
+        # needs no export-compliance answer for each upload.
+        # `ios/Tools/check-encryption.sh` fails `make ios` if the code starts
+        # encrypting anything, a password-protected PDF included, so this
+        # cannot quietly become false.
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        # Shared with the macOS app so a purchase covers both. It is a
+        # placeholder: change it, in both project.yml files, before distributing.
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.QuirePDF
+        PRODUCT_NAME: Quire PDF
+        PRODUCT_MODULE_NAME: QuirePDF
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Quire PDF
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        # Signing comes from Config/Base.xcconfig, overridden by the
+        # gitignored Local.xcconfig. Restated per target because xcodegen's
+        # platform presets set target-level signing defaults, and a target
+        # setting beats the project xcconfig.
+        CODE_SIGN_STYLE: $(CODE_SIGN_STYLE)
+        DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+
+  QuirePDFUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [QuirePDFUITests]
+    dependencies:
+      - target: QuirePDF
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.QuirePDFUITests
+        # XCTestCase's overridable methods are nonisolated; the class opts
+        # into the main actor itself.
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
+        TEST_TARGET_NAME: QuirePDF
+        CODE_SIGN_STYLE: $(CODE_SIGN_STYLE)
+        DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+
+# The model's tests live with it, in QuireKit: `make kit`. These UI tests
+# drive the app itself.
+schemes:
+  QuirePDF:
+    build:
+      targets:
+        QuirePDF: all
+        QuirePDFUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [QuirePDFUITests]

@@ -7,53 +7,48 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A89D4D0BDE8051731CFBA5D /* PDFFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB86B3CFD4D39469D97BB3A6 /* PDFFile.swift */; };
 		527C5C199162EEF601F2B1F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F00FDAE8CD45DCC5151A50 /* ContentView.swift */; };
 		8101D39E418B1A42D2F8DDC3 /* MergeBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DCC9BDA1D248286FF3089F8 /* MergeBar.swift */; };
-		95BE7EB7C5B041DAD0F6FC26 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D648C96CD3E42120CA964E /* Workspace.swift */; };
-		A70BE180042B34BDCE18E3D6 /* PDFComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B2E9D423D499E794E1A3EA9 /* PDFComposer.swift */; };
 		AA9FD1A51CF72B6D8899B267 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93677E2613BF2FE9C49F00EC /* FileListView.swift */; };
+		BA9DF7AF52A6112D10BC675C /* QuireKit in Frameworks */ = {isa = PBXBuildFile; productRef = D11C009291383F17CE3FF121 /* QuireKit */; };
+		C43540FC6AF15DB4CD3A5997 /* WindowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CD11F94F0B54EADACEC430 /* WindowState.swift */; };
 		D107880F0DDC64AFFC9D1C37 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DA39242C76A75D002976724C /* Assets.xcassets */; };
-		E8CC784FF9C10B74F9F90C65 /* PDFComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43BBE60FC795C147600C46FD /* PDFComposerTests.swift */; };
 		EC8099BBB1FF9BA559AF35A2 /* QuirePDFApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79694A145F02128C5F2D650B /* QuirePDFApp.swift */; };
 		F087DDB782FC42733D2AC35A /* PageGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73FCF46691C9ECA0C791357F /* PageGridView.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		522E76294000ADA754F47048 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 177F0DFBAC325AC4B96840A5 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 935DF333C5307596ABE79274;
-			remoteInfo = QuirePDF;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		254A2BFEDB698BB5E9090AC0 /* QuirePDF.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuirePDF.entitlements; sourceTree = "<group>"; };
-		43BBE60FC795C147600C46FD /* PDFComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFComposerTests.swift; sourceTree = "<group>"; };
+		3A78C5731625FF7AD244984F /* QuireKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = QuireKit; path = ../QuireKit; sourceTree = SOURCE_ROOT; };
 		568325A62C771E94109ADF6A /* QuirePDF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuirePDF.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		6B2E9D423D499E794E1A3EA9 /* PDFComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFComposer.swift; sourceTree = "<group>"; };
 		73FCF46691C9ECA0C791357F /* PageGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageGridView.swift; sourceTree = "<group>"; };
 		79694A145F02128C5F2D650B /* QuirePDFApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuirePDFApp.swift; sourceTree = "<group>"; };
 		88F00FDAE8CD45DCC5151A50 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		91838EEFAB9C5521E26544D5 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
+		91CD11F94F0B54EADACEC430 /* WindowState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowState.swift; sourceTree = "<group>"; };
 		93677E2613BF2FE9C49F00EC /* FileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListView.swift; sourceTree = "<group>"; };
 		954CF9CCC2856C51981867A2 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
-		98D648C96CD3E42120CA964E /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
 		9DCC9BDA1D248286FF3089F8 /* MergeBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergeBar.swift; sourceTree = "<group>"; };
-		AC6AC238A75A996AFD999ED1 /* QuirePDFTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuirePDFTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C19389A307273E4C0C8DCF7B /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		DA39242C76A75D002976724C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		FB86B3CFD4D39469D97BB3A6 /* PDFFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFFile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		19DC310C7971A5CCF0FBB909 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA9DF7AF52A6112D10BC675C /* QuireKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0E657514C3879D3DA864C37B /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				568325A62C771E94109ADF6A /* QuirePDF.app */,
-				AC6AC238A75A996AFD999ED1 /* QuirePDFTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,27 +57,10 @@
 			isa = PBXGroup;
 			children = (
 				FC4F0BD37DB36A6B44ADF6EF /* Config */,
+				DA541CA8BBAE2A6EA11910E6 /* Packages */,
 				A5332AE327A5C10B1A90804C /* QuirePDF */,
-				BE8CA39BDA4AC9126D882D17 /* QuirePDFTests */,
 				0E657514C3879D3DA864C37B /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		804292A4893E1909284AEF27 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				6B2E9D423D499E794E1A3EA9 /* PDFComposer.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		8269E816C1A786F2995D9D4B /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				FB86B3CFD4D39469D97BB3A6 /* PDFFile.swift */,
-				98D648C96CD3E42120CA964E /* Workspace.swift */,
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		A5332AE327A5C10B1A90804C /* QuirePDF */ = {
@@ -91,8 +69,7 @@
 				DA39242C76A75D002976724C /* Assets.xcassets */,
 				254A2BFEDB698BB5E9090AC0 /* QuirePDF.entitlements */,
 				79694A145F02128C5F2D650B /* QuirePDFApp.swift */,
-				8269E816C1A786F2995D9D4B /* Model */,
-				804292A4893E1909284AEF27 /* Services */,
+				91CD11F94F0B54EADACEC430 /* WindowState.swift */,
 				ADA141BCE87FE610B4B6B2E4 /* Views */,
 			);
 			path = QuirePDF;
@@ -109,12 +86,12 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		BE8CA39BDA4AC9126D882D17 /* QuirePDFTests */ = {
+		DA541CA8BBAE2A6EA11910E6 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				43BBE60FC795C147600C46FD /* PDFComposerTests.swift */,
+				3A78C5731625FF7AD244984F /* QuireKit */,
 			);
-			path = QuirePDFTests;
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		FC4F0BD37DB36A6B44ADF6EF /* Config */ = {
@@ -136,6 +113,7 @@
 			buildPhases = (
 				FEBF87DA00D5E2D5AFF8DA90 /* Sources */,
 				B382528A7C4ADF6D60E64A54 /* Resources */,
+				19DC310C7971A5CCF0FBB909 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -143,28 +121,11 @@
 			);
 			name = QuirePDF;
 			packageProductDependencies = (
+				D11C009291383F17CE3FF121 /* QuireKit */,
 			);
 			productName = QuirePDF;
 			productReference = 568325A62C771E94109ADF6A /* QuirePDF.app */;
 			productType = "com.apple.product-type.application";
-		};
-		D87E823245F6417316677ADA /* QuirePDFTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 955A32A5CBBD46E02FC0FC1A /* Build configuration list for PBXNativeTarget "QuirePDFTests" */;
-			buildPhases = (
-				505E5DAEEB3050D04E8A61FD /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BA8A8F26B0E5C0E8AC4117E1 /* PBXTargetDependency */,
-			);
-			name = QuirePDFTests;
-			packageProductDependencies = (
-			);
-			productName = QuirePDFTests;
-			productReference = AC6AC238A75A996AFD999ED1 /* QuirePDFTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -179,10 +140,6 @@
 						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
 						ProvisioningStyle = "$(CODE_SIGN_STYLE)";
 					};
-					D87E823245F6417316677ADA = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
-						ProvisioningStyle = "$(CODE_SIGN_STYLE)";
-					};
 				};
 			};
 			buildConfigurationList = DD25434FBF937E1595A8CEC7 /* Build configuration list for PBXProject "QuirePDF" */;
@@ -194,13 +151,15 @@
 			);
 			mainGroup = 148EC8A944633C72A728E52B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				39F7CE3BEA0CF0E890253597 /* XCLocalSwiftPackageReference "../QuireKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0E657514C3879D3DA864C37B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				935DF333C5307596ABE79274 /* QuirePDF */,
-				D87E823245F6417316677ADA /* QuirePDFTests */,
 			);
 		};
 /* End PBXProject section */
@@ -217,14 +176,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		505E5DAEEB3050D04E8A61FD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E8CC784FF9C10B74F9F90C65 /* PDFComposerTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		FEBF87DA00D5E2D5AFF8DA90 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,45 +183,15 @@
 				527C5C199162EEF601F2B1F4 /* ContentView.swift in Sources */,
 				AA9FD1A51CF72B6D8899B267 /* FileListView.swift in Sources */,
 				8101D39E418B1A42D2F8DDC3 /* MergeBar.swift in Sources */,
-				A70BE180042B34BDCE18E3D6 /* PDFComposer.swift in Sources */,
-				1A89D4D0BDE8051731CFBA5D /* PDFFile.swift in Sources */,
 				F087DDB782FC42733D2AC35A /* PageGridView.swift in Sources */,
 				EC8099BBB1FF9BA559AF35A2 /* QuirePDFApp.swift in Sources */,
-				95BE7EB7C5B041DAD0F6FC26 /* Workspace.swift in Sources */,
+				C43540FC6AF15DB4CD3A5997 /* WindowState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		BA8A8F26B0E5C0E8AC4117E1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 935DF333C5307596ABE79274 /* QuirePDF */;
-			targetProxy = 522E76294000ADA754F47048 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		27DBF5BE730599B147619050 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "$(CODE_SIGN_IDENTITY)";
-				CODE_SIGN_STYLE = "$(CODE_SIGN_STYLE)";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.QuirePDFTests;
-				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quire PDF.app/Contents/MacOS/Quire PDF";
-			};
-			name = Debug;
-		};
 		682A868EE8365EBA80492BB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -421,26 +342,6 @@
 			};
 			name = Release;
 		};
-		F05B2C7F621B33CA75CED22C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "$(CODE_SIGN_IDENTITY)";
-				CODE_SIGN_STYLE = "$(CODE_SIGN_STYLE)";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.QuirePDFTests;
-				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quire PDF.app/Contents/MacOS/Quire PDF";
-			};
-			name = Release;
-		};
 		F5D080375B94E26F05E3B7A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -478,15 +379,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		955A32A5CBBD46E02FC0FC1A /* Build configuration list for PBXNativeTarget "QuirePDFTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				27DBF5BE730599B147619050 /* Debug */,
-				F05B2C7F621B33CA75CED22C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		DD25434FBF937E1595A8CEC7 /* Build configuration list for PBXProject "QuirePDF" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -497,6 +389,20 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		39F7CE3BEA0CF0E890253597 /* XCLocalSwiftPackageReference "../QuireKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../QuireKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D11C009291383F17CE3FF121 /* QuireKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = QuireKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 177F0DFBAC325AC4B96840A5 /* Project object */;
 }

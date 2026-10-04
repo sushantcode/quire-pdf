@@ -1,41 +1,43 @@
 import AppKit
+import QuireKit
 import SwiftUI
 
 /// Pinned under the pages: what will be merged, how hard to compress it, and
 /// the button that merges and saves, then says what it saved.
 struct MergeBar: View {
-    @Environment(Workspace.self) private var workspace
+    @Environment(MergeSession.self) private var session
+    @Environment(WindowState.self) private var window
     @State private var isWorking = false
     @State private var saved: Saved?
 
     private struct Saved {
         let url: URL
         let size: Int
-        let uncompressedSize: Int
+        let percentSaved: Int?
     }
 
     var body: some View {
-        @Bindable var workspace = workspace
-        let pageCount = workspace.pages.count
+        @Bindable var session = session
+        let pageCount = session.pages.count
 
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("\(pageCount.counted("page")) from \(workspace.files.count.counted("file"))")
+                Text("\(pageCount.counted("page")) from \(session.files.count.counted("file"))")
                     .font(.headline)
                 if let saved {
                     savedLine(saved)
                 } else {
-                    Text(workspace.compression.detail)
+                    Text(session.compression.detail)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.tail)
-                        .help(workspace.compression.detail)
+                        .help(session.compression.detail)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Picker("Compression", selection: $workspace.compression) {
+            Picker("Compression", selection: $session.compression) {
                 ForEach(CompressionLevel.allCases) { Text($0.title).tag($0) }
             }
             .pickerStyle(.segmented)
@@ -65,20 +67,20 @@ struct MergeBar: View {
         .padding(.vertical, 10)
         .background(.bar)
         .overlay(alignment: .top) { Divider() }
-        .onChange(of: workspace.isExportRequested) { _, requested in
+        .onChange(of: window.isExportRequested) { _, requested in
             guard requested else { return }
-            workspace.isExportRequested = false
+            window.isExportRequested = false
             Task { await export() }
         }
         // A saved result describes the pages as they were; any edit makes it stale.
-        .onChange(of: workspace.pages.map(\.id)) { saved = nil }
-        .onChange(of: workspace.compression) { saved = nil }
+        .onChange(of: session.pages.map(\.id)) { saved = nil }
+        .onChange(of: session.compression) { saved = nil }
     }
 
     private func savedLine(_ saved: Saved) -> some View {
         HStack(spacing: 8) {
             Label {
-                Text("Saved \(saved.url.lastPathComponent) · \(saved.size.formatted(.byteCount(style: .file)))\(reduction(saved))")
+                Text("Saved \(saved.url.lastPathComponent) · \(saved.size.formatted(.byteCount(style: .file)))\(saved.percentSaved.map { ", \($0)% smaller" } ?? "")")
                     .lineLimit(1)
                     .truncationMode(.middle)
             } icon: {
@@ -90,17 +92,11 @@ struct MergeBar: View {
         .font(.caption)
     }
 
-    private func reduction(_ saved: Saved) -> String {
-        guard saved.size < saved.uncompressedSize, saved.uncompressedSize > 0 else { return "" }
-        let percent = Int((1 - Double(saved.size) / Double(saved.uncompressedSize)) * 100)
-        return percent > 0 ? ", \(percent)% smaller" : ""
-    }
-
     private func export() async {
-        guard !isWorking, !workspace.pages.isEmpty else { return }
+        guard !isWorking, !session.pages.isEmpty else { return }
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.pdf]
-        panel.nameFieldStringValue = workspace.files.count == 1 ? "\(workspace.files[0].name) (edited).pdf" : "Merged.pdf"
+        panel.nameFieldStringValue = session.files.count == 1 ? "\(session.files[0].name) (edited).pdf" : "Merged.pdf"
         panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
@@ -108,15 +104,11 @@ struct MergeBar: View {
         saved = nil
         defer { isWorking = false }
         do {
-            let merged = try PDFComposer.merge(workspace.pagesForMerge)
-            let level = workspace.compression
-            let output = try await Task.detached(priority: .userInitiated) {
-                try PDFCompressor.compress(merged, level: level)
-            }.value
-            try output.write(to: url, options: .atomic)
-            saved = Saved(url: url, size: output.count, uncompressedSize: merged.count)
+            let result = try await session.makeMergedPDF()
+            try result.data.write(to: url, options: .atomic)
+            saved = Saved(url: url, size: result.data.count, percentSaved: result.percentSaved)
         } catch {
-            workspace.errorMessage = error.localizedDescription
+            window.errorMessage = error.localizedDescription
         }
     }
 }

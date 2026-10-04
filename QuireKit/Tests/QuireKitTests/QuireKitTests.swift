@@ -1,4 +1,3 @@
-import AppKit
 import CoreGraphics
 import CoreText
 import ImageIO
@@ -6,7 +5,7 @@ import UniformTypeIdentifiers
 import Foundation
 import PDFKit
 import Testing
-@testable import QuirePDF
+@testable import QuireKit
 
 /// Builds a PDF whose pages have widths `widths`, so page order can be read back from the output.
 private func makePDF(widths: [CGFloat], height: CGFloat = 400, noiseImage: Bool = false) -> Data {
@@ -46,13 +45,37 @@ private func makeNoiseImage(side: Int) -> CGImage {
     return context.makeImage()!
 }
 
+/// Letter-size pages, each with a line of text, and below it a large
+/// photo-like image where `withImage` is true.
+private func makeTextPDF(_ pages: [(text: String, withImage: Bool)]) -> Data {
+    let data = NSMutableData()
+    let context = CGContext(consumer: CGDataConsumer(data: data as CFMutableData)!, mediaBox: nil, nil)!
+    for page in pages {
+        context.beginPDFPage(nil)
+        let line = CTLineCreateWithAttributedString(
+            NSAttributedString(string: page.text,
+                               attributes: [kCTFontAttributeName as NSAttributedString.Key:
+                                                CTFontCreateWithName("Helvetica" as CFString, 24, nil)]))
+        context.textPosition = CGPoint(x: 72, y: 720)
+        CTLineDraw(line, context)
+        if page.withImage {
+            context.draw(makeNoiseImage(side: 2400), in: CGRect(x: 72, y: 72, width: 468, height: 600))
+        }
+        context.endPDFPage()
+    }
+    context.closePDF()
+    return data as Data
+}
+
 /// One letter-size page with a line of text above a large photo-like image.
 private func makeTextAndImagePDF(text: String) -> Data {
     let data = NSMutableData()
     let context = CGContext(consumer: CGDataConsumer(data: data as CFMutableData)!, mediaBox: nil, nil)!
     context.beginPDFPage(nil)
     let line = CTLineCreateWithAttributedString(
-        NSAttributedString(string: text, attributes: [.font: NSFont.systemFont(ofSize: 24)]))
+        NSAttributedString(string: text,
+                           attributes: [kCTFontAttributeName as NSAttributedString.Key:
+                                            CTFontCreateWithName("Helvetica" as CFString, 24, nil)]))
     context.textPosition = CGPoint(x: 72, y: 720)
     CTLineDraw(line, context)
     context.draw(makeNoiseImage(side: 2400), in: CGRect(x: 72, y: 72, width: 468, height: 600))
@@ -131,27 +154,27 @@ struct PageMoveTests {
 
 @MainActor
 struct MergeTests {
-    /// A workspace holding a (pages 101-103) and b (pages 201-204).
-    private func makeWorkspace() throws -> (Workspace, PDFFile, PDFFile) {
-        let workspace = Workspace()
+    /// A session holding a (pages 101-103) and b (pages 201-204).
+    private func makeMergeSession() throws -> (MergeSession, PDFFile, PDFFile) {
+        let workspace = MergeSession()
         let a = try PDFFile(name: "a", data: makePDF(widths: [101, 102, 103]))
         let b = try PDFFile(name: "b", data: makePDF(widths: [201, 202, 203, 204]))
         workspace.insert([a, b])
         return (workspace, a, b)
     }
 
-    private func mergedWidths(_ workspace: Workspace) throws -> [Int] {
+    private func mergedWidths(_ workspace: MergeSession) throws -> [Int] {
         pageWidths(try PDFComposer.merge(workspace.pagesForMerge))
     }
 
     @Test func mergesEveryPageInFileOrderByDefault() throws {
-        let (workspace, _, _) = try makeWorkspace()
+        let (workspace, _, _) = try makeMergeSession()
         #expect(try mergedWidths(workspace) == [101, 102, 103, 201, 202, 203, 204])
         #expect(!workspace.isRearranged)
     }
 
     @Test func movesAPageFromALaterFileToTheTop() throws {
-        let (workspace, a, b) = try makeWorkspace()
+        let (workspace, a, b) = try makeMergeSession()
         workspace.movePages([b.pages[3].id], onto: a.pages[0].id)
         #expect(try mergedWidths(workspace) == [204, 101, 102, 103, 201, 202, 203])
         #expect(workspace.isModified(b))
@@ -160,7 +183,7 @@ struct MergeTests {
     }
 
     @Test func reorderingFilesRegroupsTheirPages() throws {
-        let (workspace, a, b) = try makeWorkspace()
+        let (workspace, a, b) = try makeMergeSession()
         workspace.movePages([b.pages[0].id], onto: a.pages[1].id)  // 101, 201, 102, ...
         workspace.removePages([a.pages[0].id])
         workspace.moveFiles(from: [1], to: 0)
@@ -168,7 +191,7 @@ struct MergeTests {
     }
 
     @Test func addedFilesInsertTheirPagesAtTheirPosition() throws {
-        let (workspace, _, _) = try makeWorkspace()
+        let (workspace, _, _) = try makeMergeSession()
         let c = try PDFFile(name: "c", data: makePDF(widths: [301]))
         workspace.insert([c], at: 1)
         #expect(try mergedWidths(workspace) == [101, 102, 103, 301, 201, 202, 203, 204])
@@ -176,7 +199,7 @@ struct MergeTests {
     }
 
     @Test func removingAFileRemovesItsPages() throws {
-        let (workspace, a, b) = try makeWorkspace()
+        let (workspace, a, b) = try makeMergeSession()
         workspace.selectedPageIDs = [a.pages[0].id, b.pages[0].id]
         workspace.remove([a.id])
         #expect(try mergedWidths(workspace) == [201, 202, 203, 204])
@@ -184,7 +207,7 @@ struct MergeTests {
     }
 
     @Test func resetRestoresEveryPageInFileOrder() throws {
-        let (workspace, a, b) = try makeWorkspace()
+        let (workspace, a, b) = try makeMergeSession()
         workspace.movePagesToStart([b.pages[2].id])
         workspace.removePages([a.pages[1].id])
         #expect(workspace.isRearranged)
@@ -194,7 +217,7 @@ struct MergeTests {
     }
 
     @Test func clearRemovesEverythingAndRestartsColours() throws {
-        let (workspace, a, _) = try makeWorkspace()
+        let (workspace, a, _) = try makeMergeSession()
         workspace.selectedPageIDs = [a.pages[0].id]
         workspace.selectedFileID = a.id
         workspace.clear()
@@ -228,6 +251,30 @@ struct CompressionTests {
         let output = try PDFCompressor.compress(input, level: .balanced)
         #expect(output.count < input.count / 4, "expected big reduction, got \(input.count) -> \(output.count)")
         #expect(PDFDocument(data: output)?.string?.contains("Selectable text survives") == true)
+    }
+
+    @Test func imagePagesAreRedrawnWithTextStillSearchable() throws {
+        let input = makeTextPDF([("Text above the photo", true)])
+        let output = try PDFCompressor.reencodeImagePages(of: input)
+        #expect(output.count < input.count / 4, "expected big reduction, got \(input.count) -> \(output.count)")
+        let document = try #require(PDFDocument(data: output))
+        #expect(document.string?.contains("Text above the photo") == true,
+                "invisible text layer lost the text: \(document.string ?? "nil")")
+        #expect(document.findString("photo", withOptions: []).count == 1, "text must stay searchable")
+    }
+
+    @Test func pagesWithoutImagesAreLeftExactlyAsTheyAre() throws {
+        let input = makeTextPDF([("Only text here", false), ("And here", false)])
+        #expect(try PDFCompressor.reencodeImagePages(of: input) == input)
+    }
+
+    @Test func onlyTheImagePageOfAMixedDocumentIsRedrawn() throws {
+        let input = makeTextPDF([("First, text only", false), ("Second, with a photo", true)])
+        let document = try #require(PDFDocument(data: try PDFCompressor.reencodeImagePages(of: input)))
+        #expect(document.pageCount == 2)
+        #expect(document.page(at: 0)?.string == "First, text only")
+        #expect(document.page(at: 1)?.string?.contains("Second, with a photo") == true,
+                "page 2 reads back as \(String(reflecting: document.page(at: 1)?.string))")
     }
 
     @Test func balancedDoesNotUpsampleLowResolutionImages() throws {

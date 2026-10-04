@@ -81,4 +81,13 @@ done
   printf '  ],\n  "info" : { "author" : "xcode", "version" : 1 }\n}\n'
 } > "$iconset/Contents.json"
 
-echo "exported dist/ and the macOS icon set from branding/logo.svg"
+# iOS takes one 1024-pixel icon and scales it for every size. It is the
+# square, opaque one above: iOS applies its own mask.
+iosAssets="$root/ios/QuirePDF/Assets.xcassets"
+cp "$here/dist/icon-1024.png" "$iosAssets/AppIcon.appiconset/icon-1024.png"
+
+# The mark on the iOS app's first screen, as a vector: asset catalogs take
+# SVG, so it is drawn sharp at any size with nothing to re-export.
+cp "$here/logo.svg" "$iosAssets/Logo.imageset/logo.svg"
+
+echo "exported dist/, the macOS and iOS app icons, and the iOS logo from branding/logo.svg"

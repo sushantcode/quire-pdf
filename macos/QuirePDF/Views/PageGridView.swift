@@ -1,24 +1,25 @@
 import PDFKit
+import QuireKit
 import SwiftUI
 
 /// Every page that will be merged, in output order, from all files at once.
 /// Drag a page onto another to move it there, across files as freely as within one.
 struct PageGridView: View {
-    @Environment(Workspace.self) private var workspace
+    @Environment(MergeSession.self) private var session
     /// Where a Shift-click range starts.
     @State private var anchor: PageRef.ID?
 
     private let columns = [GridItem(.adaptive(minimum: 150, maximum: 220), spacing: 16)]
 
     var body: some View {
-        let files = Dictionary(uniqueKeysWithValues: workspace.files.map { ($0.id, $0) })
+        let files = Dictionary(uniqueKeysWithValues: session.files.map { ($0.id, $0) })
 
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 20) {
-                    ForEach(Array(workspace.pages.enumerated()), id: \.element.id) { index, ref in
+                    ForEach(Array(session.pages.enumerated()), id: \.element.id) { index, ref in
                         PageCell(ref: ref, position: index + 1, file: files[ref.fileID],
-                                 isSelected: workspace.selectedPageIDs.contains(ref.id))
+                                 isSelected: session.selectedPageIDs.contains(ref.id))
                             .id(ref.id)
                             .onTapGesture { select(ref.id) }
                             .draggable(ref.id.uuidString) {
@@ -26,7 +27,7 @@ struct PageGridView: View {
                             }
                             .dropDestination(for: String.self) { items, _ in
                                 guard let dragged = items.first.flatMap(UUID.init(uuidString:)) else { return false }
-                                withAnimation(.snappy) { workspace.movePages(targets(for: dragged), onto: ref.id) }
+                                withAnimation(.snappy) { session.movePages(targets(for: dragged), onto: ref.id) }
                                 return true
                             }
                             .contextMenu { menu(for: ref.id) }
@@ -35,10 +36,10 @@ struct PageGridView: View {
                 .padding(20)
             }
             // Picking a file in the sidebar selects its pages and brings the first into view.
-            .onChange(of: workspace.selectedFileID) { _, id in
+            .onChange(of: session.selectedFileID) { _, id in
                 guard let id else { return }
-                let filePages = workspace.pages.filter { $0.fileID == id }
-                workspace.selectedPageIDs = Set(filePages.map(\.id))
+                let filePages = session.pages.filter { $0.fileID == id }
+                session.selectedPageIDs = Set(filePages.map(\.id))
                 anchor = filePages.first?.id
                 if let first = filePages.first {
                     withAnimation { proxy.scrollTo(first.id, anchor: .top) }
@@ -46,28 +47,28 @@ struct PageGridView: View {
             }
         }
         .overlay {
-            if workspace.pages.isEmpty {
+            if session.pages.isEmpty {
                 ContentUnavailableView {
                     Label("No Pages", systemImage: "doc")
                 } description: {
                     Text("Every page has been deleted.")
                 } actions: {
-                    Button("Restore All Pages") { withAnimation { workspace.resetPages() } }
+                    Button("Restore All Pages") { withAnimation { session.resetPages() } }
                 }
             }
         }
-        .onDeleteCommand { workspace.removePages(workspace.selectedPageIDs) }
+        .onDeleteCommand { session.removePages(session.selectedPageIDs) }
         .navigationTitle("Merged PDF")
-        .navigationSubtitle("\(workspace.pages.count.counted("page")) from \(workspace.files.count.counted("file")). Drag pages to reorder.")
+        .navigationSubtitle("\(session.pages.count.counted("page")) from \(session.files.count.counted("file")). Drag pages to reorder.")
         .toolbar {
             ToolbarItem {
                 Button {
-                    withAnimation { workspace.resetPages() }
+                    withAnimation { session.resetPages() }
                 } label: {
                     Label("Reset Pages", systemImage: "arrow.uturn.backward")
                 }
                 .help("Restore every page of every file, in file order")
-                .disabled(!workspace.isRearranged)
+                .disabled(!session.isRearranged)
             }
         }
     }
@@ -75,39 +76,39 @@ struct PageGridView: View {
     /// The pages an action on `id` applies to: the whole selection when `id`
     /// is part of it, otherwise just that page.
     private func targets(for id: PageRef.ID) -> Set<PageRef.ID> {
-        workspace.selectedPageIDs.contains(id) ? workspace.selectedPageIDs : [id]
+        session.selectedPageIDs.contains(id) ? session.selectedPageIDs : [id]
     }
 
     @ViewBuilder
     private func menu(for id: PageRef.ID) -> some View {
         let ids = targets(for: id)
-        Button("Move to Start") { withAnimation(.snappy) { workspace.movePagesToStart(ids) } }
-        Button("Move to End") { withAnimation(.snappy) { workspace.movePagesToEnd(ids) } }
+        Button("Move to Start") { withAnimation(.snappy) { session.movePagesToStart(ids) } }
+        Button("Move to End") { withAnimation(.snappy) { session.movePagesToEnd(ids) } }
         Divider()
         Button(ids.count > 1 ? "Delete \(ids.count) Pages" : "Delete Page", role: .destructive) {
-            withAnimation { workspace.removePages(ids) }
+            withAnimation { session.removePages(ids) }
         }
     }
 
     private func select(_ id: PageRef.ID) {
         let modifiers = NSEvent.modifierFlags
-        let ids = workspace.pages.map(\.id)
+        let ids = session.pages.map(\.id)
         if modifiers.contains(.shift), let anchor,
            let from = ids.firstIndex(of: anchor), let to = ids.firstIndex(of: id) {
-            workspace.selectedPageIDs = Set(ids[min(from, to)...max(from, to)])
+            session.selectedPageIDs = Set(ids[min(from, to)...max(from, to)])
         } else if modifiers.contains(.command) {
-            if workspace.selectedPageIDs.contains(id) {
-                workspace.selectedPageIDs.remove(id)
+            if session.selectedPageIDs.contains(id) {
+                session.selectedPageIDs.remove(id)
             } else {
-                workspace.selectedPageIDs.insert(id)
+                session.selectedPageIDs.insert(id)
             }
             anchor = id
         } else {
-            workspace.selectedPageIDs = [id]
+            session.selectedPageIDs = [id]
             anchor = id
         }
         // The selection is now pages, not a file.
-        workspace.selectedFileID = nil
+        session.selectedFileID = nil
     }
 }
 
@@ -206,9 +207,4 @@ struct PageImage: View {
             image = page.thumbnail(of: CGSize(width: maxPixelSize, height: maxPixelSize), for: .cropBox)
         }
     }
-}
-
-extension Int {
-    /// "1 page", "3 pages".
-    func counted(_ noun: String) -> String { "\(self) \(noun)\(self == 1 ? "" : "s")" }
 }
