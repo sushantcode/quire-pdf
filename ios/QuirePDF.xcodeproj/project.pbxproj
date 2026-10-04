@@ -12,6 +12,7 @@
 		527C5C199162EEF601F2B1F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F00FDAE8CD45DCC5151A50 /* ContentView.swift */; };
 		5BCDB5CD9FF148A6A6880719 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2FE327BBED8FA55F01295E22 /* PrivacyInfo.xcprivacy */; };
 		621B86CBD096F7DF361A01DA /* Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5471B5F7E4048722BB89F4 /* Transfer.swift */; };
+		64329C961A7E88AC8DC60511 /* ScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D68DFEE27C078617D651C58 /* ScreenshotTests.swift */; };
 		6C215E46456D815582BA996B /* PageThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10279C98FDBB78236E059783 /* PageThumbnail.swift */; };
 		71E0E7361EA7D85100EC5F98 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA1A3982612E6ABD21399AF /* EmptyStateView.swift */; };
 		7BC5265D58429A3B9D5CBC14 /* BottomBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C18C8E029855D080CED639 /* BottomBars.swift */; };
@@ -51,6 +52,7 @@
 		73FCF46691C9ECA0C791357F /* PageGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageGridView.swift; sourceTree = "<group>"; };
 		79694A145F02128C5F2D650B /* QuirePDFApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuirePDFApp.swift; sourceTree = "<group>"; };
 		7B0179D81335341B928FDF02 /* FileListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListSheet.swift; sourceTree = "<group>"; };
+		7D68DFEE27C078617D651C58 /* ScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotTests.swift; sourceTree = "<group>"; };
 		839A6F5DB33BAD28B8189955 /* ScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenState.swift; sourceTree = "<group>"; };
 		88F00FDAE8CD45DCC5151A50 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		91838EEFAB9C5521E26544D5 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				6D9655FF7D87DFE1F5F80901 /* QuirePDFUITests.swift */,
+				7D68DFEE27C078617D651C58 /* ScreenshotTests.swift */,
 			);
 			path = QuirePDFUITests;
 			sourceTree = "<group>";
@@ -262,6 +265,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A4C9CA8B956F291A65934109 /* QuirePDFUITests.swift in Sources */,
+				64329C961A7E88AC8DC60511 /* ScreenshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

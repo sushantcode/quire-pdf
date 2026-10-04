@@ -100,6 +100,13 @@ from its `project.yml`. Those files are the source of truth, so don't change the
 projects through Xcode's settings UI. Regenerate after adding or removing a
 source file.
 
+`make screenshots` captures the App Store screenshots for every required display
+into `ios/AppStore/Screenshots/` (generated, gitignored), using realistic sample
+documents that only debug builds contain. The listing text, and the answers to
+App Store Connect's other questions, are in
+[`ios/AppStore/Listing.md`](ios/AppStore/Listing.md). The privacy policy and
+support page are in [`docs/`](docs), for GitHub Pages.
+
 The iOS UI tests launch the app with `-UITestSamples`, which loads two sample
 PDFs in debug builds. They don't depend on the document picker.
 

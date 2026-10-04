@@ -62,8 +62,10 @@ struct ContentView: View {
         .onAppear {
             session.compression = CompressionLevel(rawValue: storedCompression) ?? .balanced
             #if DEBUG
-            if ProcessInfo.processInfo.arguments.contains("-UITestSamples"), session.files.isEmpty {
-                session.insert(SampleDocuments.make())
+            let arguments = ProcessInfo.processInfo.arguments
+            if session.files.isEmpty {
+                if arguments.contains("-UITestSamples") { session.insert(SampleDocuments.make()) }
+                if arguments.contains("-ScreenshotSamples") { session.insert(SampleDocuments.screenshotSet()) }
             }
             #endif
         }

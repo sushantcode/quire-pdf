@@ -90,4 +90,7 @@ cp "$here/dist/icon-1024.png" "$iosAssets/AppIcon.appiconset/icon-1024.png"
 # SVG, so it is drawn sharp at any size with nothing to re-export.
 cp "$here/logo.svg" "$iosAssets/Logo.imageset/logo.svg"
 
-echo "exported dist/, the macOS and iOS app icons, and the iOS logo from branding/logo.svg"
+# The support site's logo and favicon.
+cp "$here/logo.svg" "$root/docs/logo.svg"
+
+echo "exported dist/, the macOS and iOS app icons, and the logos from branding/logo.svg"

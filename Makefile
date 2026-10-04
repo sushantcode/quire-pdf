@@ -75,6 +75,10 @@ macos: ## Build the macOS app
 	cd macos && xcodebuild -project QuirePDF.xcodeproj -scheme QuirePDF \
 	  -destination 'platform=macOS' build -quiet
 
+.PHONY: screenshots
+screenshots: ## Capture App Store screenshots for every required display
+	./ios/Tools/screenshots.sh
+
 .PHONY: ios
 ios: encryption-check ## Build the iOS app and run its UI tests in the Simulator
 	cd ios && xcodebuild -project QuirePDF.xcodeproj -scheme QuirePDF \
